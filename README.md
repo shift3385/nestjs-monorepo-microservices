@@ -1,98 +1,58 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# NestJS Monorepo Microservices (TCP)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Este proyecto implementa una arquitectura de microservicios utilizando el patrón **Monorepo** con NestJS, comunicándose internamente a través del protocolo **TCP**.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## DESCRIPCION DE LA TAREA
+Desarrollar una aplicación de NestJS monorepositorio con tres apps mínimo que incluya una app gateway y dos del tipo que deseen.. la comunicación es por TCP. Usar los conocimientos adquiridos en las anteriores.
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Arquitectura del Sistema
 
-## Project setup
+El proyecto consta de tres aplicaciones principales ubicadas en la carpeta `apps/`:
 
+1.  **`api-gateway` (Puerto 3000):** Actúa como el único punto de entrada para los clientes externos (HTTP). Se encarga de redirigir las peticiones a los microservicios correspondientes mediante TCP.
+2.  **`auth-service` (Puerto 3001 - TCP):** Microservicio dedicado a la lógica de autenticación y verificación de estado.
+3.  **`catalog-service` (Puerto 3002 - TCP):** Microservicio encargado de gestionar el catálogo de productos y servicios.
+
+## ¿Por qué un Monorepo para 3 aplicaciones?
+
+Hemos decidido unificar las 3 APIs en un solo repositorio por las siguientes razones técnicas:
+*   **Gestión de Dependencias Unificada:** Todas las aplicaciones comparten el mismo `package.json`, lo que garantiza que las versiones de las librerías sean consistentes en todo el ecosistema.
+*   **Facilidad de Mantenimiento:** Permite realizar cambios transversales (como actualizar una versión de NestJS o una configuración de ESLint) en un solo paso para todos los servicios.
+*   **Interoperabilidad:** Facilita enormemente el compartir interfaces, DTOs y lógica común (en una futura carpeta `libs/`) sin necesidad de publicar paquetes privados en registros externos.
+
+## Instalación y Ejecución
+
+Para poner en marcha el sistema completo, siga estos pasos en terminales separadas:
+
+### 1. Instalar dependencias
 ```bash
-$ npm install
+npm install
 ```
 
-## Compile and run the project
-
+### 2. Levantar Microservicios (Orden recomendado)
 ```bash
-# development
-$ npm run start
+# Terminal 1: Servicio de Autenticación
+npm run start auth-service
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+# Terminal 2: Servicio de Catálogo
+npm run start catalog-service
 ```
 
-## Run tests
-
+### 3. Levantar el API Gateway
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+# Terminal 3: Punto de entrada HTTP
+npm run start api-gateway
 ```
 
-## Deployment
+## Endpoints de Prueba (Evidencia)
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Una vez iniciados los servicios, puede probar la comunicación a través del Gateway:
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+*   **Verificar Auth Service (vía TCP):** `GET http://localhost:3000/auth-status`
+*   **Obtener Catálogo (vía TCP):** `GET http://localhost:3000/products`
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
+**Desarrollado para:** Tarea de Trabajo UCI
+**Repositorio:** [https://github.com/shift3385/nestjs-monorepo-microservices](https://github.com/shift3385/nestjs-monorepo-microservices)
